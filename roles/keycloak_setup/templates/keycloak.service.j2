@@ -7,6 +7,8 @@ Type=simple
 User=keycloak
 Group=keycloak
 WorkingDirectory=/opt/keycloak
+Environment="KEYCLOAK_ADMIN={{ keycloak_admin_user }}"
+Environment="KEYCLOAK_ADMIN_PASSWORD={{ keycloak_admin_password }}"
 ExecStart=/opt/keycloak/bin/kc.sh start-dev
 StandardOutput=journal
 StandardError=journal
