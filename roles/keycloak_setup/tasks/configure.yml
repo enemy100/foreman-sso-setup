@@ -32,17 +32,6 @@
     group: keycloak
     mode: '0640'
 
-- name: Create admin user with add-user script
-  ansible.builtin.shell:
-    cmd: |
-      /opt/keycloak/bin/add-user-keycloak.sh -r master -u {{ keycloak_admin_user }} -p {{ keycloak_admin_password }}
-    chdir: /opt/keycloak
-  become: yes
-  become_user: keycloak
-  register: add_user_result
-  changed_when: add_user_result.rc == 0
-  ignore_errors: yes
-
 - name: Configure Keycloak (newer versions)
   ansible.builtin.command:
     cmd: "/opt/keycloak/bin/kc.sh build"
