@@ -12,6 +12,12 @@
   register: standalone_script
   when: not kc_script.stat.exists
 
+- name: Stop Keycloak service if running
+  ansible.builtin.systemd:
+    name: keycloak
+    state: stopped
+  ignore_errors: yes
+
 - name: Configure Keycloak (newer versions)
   ansible.builtin.command:
     cmd: "/opt/keycloak/bin/kc.sh build --db=dev-file"
@@ -21,6 +27,14 @@
   register: kc_build
   changed_when: kc_build.rc == 0
   when: kc_script.stat.exists
+
+- name: Create Keycloak admin user file
+  ansible.builtin.template:
+    src: keycloak.conf.j2
+    dest: /opt/keycloak/conf/keycloak.conf
+    owner: keycloak
+    group: keycloak
+    mode: '0644'
 
 - name: Enable Keycloak systemd service
   ansible.builtin.systemd:
