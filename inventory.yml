@@ -1,0 +1,2 @@
+[foreman]
+foreman.example.com ansible_host=192.168.56.10 

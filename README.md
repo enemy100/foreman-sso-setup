@@ -23,6 +23,8 @@ The project uses Ansible to automate the installation and configuration of Keycl
 
 ```
 foreman-sso-setup/
+├── inventory.yml
+├── site.yml
 ├── ansible/
 │   ├── roles/
 │   │   └── keycloak_setup/
@@ -60,9 +62,22 @@ foreman-sso-setup/
 
 2. Adjust user, group, and role settings as needed.
 
+## Inventory Example (Root Usage)
+
+For didactic/lab use, it is recommended to run Ansible as root for simplicity. Your `inventory.yml` should look like:
+
+```ini
+[foreman]
+foreman.example.com ansible_host=192.168.56.10
+```
+
+- `foreman.example.com` is the FQDN used for SSO/certificates.
+- `ansible_host` is the IP or DNS of the target server.
+- By default, Ansible will connect as root (if you run `ansible-playbook` as root or specify `-u root`).
+
 ## Installation (Manual)
 
-Run the main playbook:
+Run the main playbook from the root of the project:
 ```bash
 ansible-playbook -i inventory.yml site.yml
 ```
@@ -74,48 +89,24 @@ The project includes automated tests to verify the integration between Foreman a
 ### Implemented Tests
 
 1. **Keycloak Health Check**
-   - Verifies if Keycloak is responding
-   - Tests the health check endpoint
-
 2. **Realm Configuration**
-   - Verifies if the realm is properly configured
-   - Tests the OpenID configuration endpoint
-
 3. **Client Configuration**
-   - Verifies if the Foreman client exists
-   - Tests client settings
-
 4. **User Authentication**
-   - Tests login with a test user
-   - Verifies token generation
-
 5. **Role Verification**
-   - Verifies if the user has correct roles
-   - Tests role mapping
-
 6. **Foreman SSO Endpoint**
-   - Tests Foreman authentication endpoint
-   - Verifies redirection
-
 7. **Session Management**
-   - Tests session creation and validation
-   - Verifies access token
-
 8. **Logout Functionality**
-   - Tests logout process
-   - Verifies token invalidation
+
+See the playbook and test script for details on each test.
 
 ### Running Tests
 
-1. Run the test playbook:
-   ```bash
-   ansible-playbook -i inventory.yml ansible/playbooks/test_integration.yml
-   ```
+```bash
+ansible-playbook -i inventory.yml ansible/playbooks/test_integration.yml
+cat /tmp/foreman_keycloak_test_report.html
+```
 
-2. Check the generated report:
-   ```bash
-   cat /tmp/foreman_keycloak_test_report.html
-   ```
+---
 
 ## Automated Installation with GitHub Actions
 
@@ -154,28 +145,18 @@ In your repository, go to **Settings > Secrets and variables > Actions** and add
 ---
 
 ## Security
-
 - Passwords are automatically generated and securely stored
 - Configurable password policies
 - Brute force protection
 - SSL/TLS certificates
 - Granular roles and permissions
 
-## Monitoring
-
-- Automated health checks
-- Detailed logging
-- Performance metrics
-- Security alerts
-
-## Backup and Recovery
-
-- Automated configuration backups
-- Recovery scripts
-- Procedure documentation
+## Roadmap
+- **Monitoring:** Future versions may include automated monitoring integration. For example, integration with [zabbix-iaac](https://github.com/enemy100/zabbix-iaac) to provide full monitoring automation for Foreman and Keycloak environments.
+- **Backup and Recovery:** Plans to add automated backup and restore tasks for Keycloak and Foreman configurations and databases.
+- **More tests and security hardening:** Additional integration and security tests.
 
 ## Contributing
-
 1. Fork the project
 2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
 3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
@@ -183,17 +164,5 @@ In your repository, go to **Settings > Secrets and variables > Actions** and add
 5. Open a Pull Request
 
 ## Support
-
 For support, open an issue on GitHub or contact the infrastructure team.
-
-
-
-
-
-
-
-
-
-
-
 
