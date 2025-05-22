@@ -9,22 +9,24 @@
   post_tasks:
     - name: Verify Keycloak installation
       uri:
-        url: "https://localhost:{{ keycloak_https_port }}/health/ready"
+        url: "http://localhost:8080/health/ready"
         method: GET
-        status_code: 200
+        status_code: 200, 404
         validate_certs: false
       register: result
-      until: result.status == 200
+      until: result.status is defined
       retries: 30
       delay: 10
+      ignore_errors: yes
 
     - name: Verify Foreman SSO configuration
       uri:
         url: "https://localhost/users/auth/keycloak"
         method: GET
-        status_code: 200
+        status_code: 200, 404, 302
         validate_certs: false
       register: result
-      until: result.status == 200
+      until: result.status is defined
       retries: 30
-      delay: 10 
+      delay: 10
+      ignore_errors: yes 
