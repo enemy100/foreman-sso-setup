@@ -1,0 +1,15 @@
+[Unit]
+Description=Keycloak Application Server
+After=network.target
+
+[Service]
+Type=simple
+User=keycloak
+Group=keycloak
+WorkingDirectory=/opt/keycloak
+ExecStart=/opt/keycloak/bin/kc.sh start-dev --http-port=8080 --https-port={{ keycloak_https_port }} --hostname={{ ansible_host }} --https-key-store-password=password --https-certificate-file=/etc/pki/tls/certs/localhost.crt --https-certificate-key-file=/etc/pki/tls/private/localhost.key
+Restart=on-failure
+TimeoutStartSec=600
+
+[Install]
+WantedBy=multi-user.target 

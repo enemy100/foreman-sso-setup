@@ -1,0 +1,16 @@
+---
+# Java installation tasks
+
+- name: Install Java
+  ansible.builtin.package:
+    name: java-11-openjdk
+    state: present
+
+- name: Install required packages
+  ansible.builtin.package:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - unzip
+    - curl
+    - tar 

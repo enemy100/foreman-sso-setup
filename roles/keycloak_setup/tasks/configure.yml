@@ -1,0 +1,63 @@
+---
+# Keycloak configuration tasks
+
+- name: Create Keycloak initial admin user
+  ansible.builtin.command:
+    cmd: "/opt/keycloak/bin/kc.sh build --db=dev-file"
+    chdir: /opt/keycloak
+  become: yes
+  become_user: keycloak
+  register: kc_build
+  changed_when: kc_build.rc == 0
+
+- name: Configure Keycloak
+  ansible.builtin.command:
+    cmd: "/opt/keycloak/bin/kc.sh start-dev --http-port=8080 --https-port={{ keycloak_https_port }} --hostname={{ ansible_host }} --https-key-store-password=password --https-certificate-file=/etc/pki/tls/certs/localhost.crt --https-certificate-key-file=/etc/pki/tls/private/localhost.key"
+    chdir: /opt/keycloak
+  become: yes
+  become_user: keycloak
+  async: 60
+  poll: 0
+  register: kc_start
+
+- name: Wait for Keycloak to start
+  ansible.builtin.uri:
+    url: "https://localhost:{{ keycloak_https_port }}/health/ready"
+    method: GET
+    validate_certs: no
+  register: result
+  until: result.status == 200
+  retries: 30
+  delay: 10
+
+- name: Create Foreman realm
+  community.general.keycloak_realm:
+    auth_keycloak_url: "https://{{ ansible_host }}:{{ keycloak_https_port }}"
+    auth_realm: master
+    auth_username: "{{ keycloak_admin_user }}"
+    auth_password: "{{ keycloak_admin_password }}"
+    id: "{{ foreman_realm_name }}"
+    realm: "{{ foreman_realm_name }}"
+    enabled: true
+    display_name: "Foreman SSO Realm"
+    state: present
+
+- name: Create Foreman client
+  community.general.keycloak_client:
+    auth_keycloak_url: "https://{{ ansible_host }}:{{ keycloak_https_port }}"
+    auth_realm: master
+    auth_username: "{{ keycloak_admin_user }}"
+    auth_password: "{{ keycloak_admin_password }}"
+    realm: "{{ foreman_realm_name }}"
+    client_id: "{{ foreman_client_id }}"
+    enabled: true
+    redirect_uris:
+      - "https://{{ ansible_host }}/users/auth/keycloak/callback"
+    web_origins:
+      - "+"
+    standard_flow_enabled: true
+    direct_access_grants_enabled: true
+    root_url: "https://{{ ansible_host }}"
+    base_url: "/users/auth/keycloak"
+    protocol: openid-connect
+    state: present 

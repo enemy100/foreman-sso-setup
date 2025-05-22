@@ -1,0 +1,46 @@
+---
+# Keycloak installation tasks
+
+- name: Create Keycloak directory
+  ansible.builtin.file:
+    path: /opt/keycloak
+    state: directory
+    mode: '0755'
+
+- name: Download Keycloak
+  ansible.builtin.get_url:
+    url: "https://github.com/keycloak/keycloak/releases/download/{{ keycloak_version }}/keycloak-{{ keycloak_version }}.tar.gz"
+    dest: "/tmp/keycloak-{{ keycloak_version }}.tar.gz"
+    mode: '0644'
+
+- name: Extract Keycloak
+  ansible.builtin.unarchive:
+    src: "/tmp/keycloak-{{ keycloak_version }}.tar.gz"
+    dest: /opt
+    remote_src: yes
+
+- name: Create Keycloak symlink
+  ansible.builtin.file:
+    src: "/opt/keycloak-{{ keycloak_version }}"
+    dest: /opt/keycloak
+    state: link
+
+- name: Create Keycloak systemd service
+  ansible.builtin.template:
+    src: keycloak.service.j2
+    dest: /etc/systemd/system/keycloak.service
+    mode: '0644'
+
+- name: Create Keycloak user
+  ansible.builtin.user:
+    name: keycloak
+    system: yes
+    home: /opt/keycloak
+    shell: /sbin/nologin
+
+- name: Set ownership of Keycloak directory
+  ansible.builtin.file:
+    path: "/opt/keycloak-{{ keycloak_version }}"
+    owner: keycloak
+    group: keycloak
+    recurse: yes 
