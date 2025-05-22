@@ -28,15 +28,20 @@ foreman-sso-setup/
 ├── docs/
 ├── host_vars/
 ├── roles/
-│   ├── defaults/
-│   ├── files/
-│   ├── tasks/
-│   └── templates/
+│   └── keycloak_setup/
+│       ├── defaults/
+│       ├── files/
+│       ├── tasks/
+│       └── templates/
 ├── inventory.yml
 ├── README.md
 ├── site.yml
 └── test_integration.yml
 ```
+
+> **Important:**
+> The `keycloak_setup` role **must** be inside `roles/keycloak_setup/` (not directly in `roles/`).
+> If you get an error like `the role 'keycloak_setup' was not found`, check your directory structure!
 
 ## Configuration
 
