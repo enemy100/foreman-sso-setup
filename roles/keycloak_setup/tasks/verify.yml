@@ -1,6 +1,57 @@
 ---
 # Verification tasks
 
+- name: Check if Keycloak service is running
+  ansible.builtin.systemd:
+    name: keycloak
+  register: keycloak_service
+  changed_when: false
+
+- name: Show Keycloak service status
+  ansible.builtin.debug:
+    msg: "Keycloak service status: {{ keycloak_service.status.ActiveState }}"
+
+- name: Check Keycloak HTTP endpoint
+  ansible.builtin.uri:
+    url: "http://localhost:8080/"
+    method: GET
+    status_code: 200, 301, 302, 307, 308
+  register: http_result
+  failed_when: false
+  changed_when: false
+
+- name: Check Keycloak HTTPS endpoint
+  ansible.builtin.uri:
+    url: "https://localhost:{{ keycloak_https_port }}/"
+    method: GET
+    validate_certs: no
+    status_code: 200, 301, 302, 307, 308
+  register: https_result
+  failed_when: false
+  changed_when: false
+
+- name: Show HTTP endpoint results
+  ansible.builtin.debug:
+    msg: "HTTP endpoint status: {{ http_result.status | default('unreachable') }}"
+
+- name: Show HTTPS endpoint results
+  ansible.builtin.debug:
+    msg: "HTTPS endpoint status: {{ https_result.status | default('unreachable') }}"
+
+- name: Check if firewall might be blocking access
+  ansible.builtin.shell: |
+    firewall-cmd --list-all | grep -E '(8080|{{ keycloak_https_port }})'
+  register: firewall_check
+  failed_when: false
+  changed_when: false
+
+- name: Show firewall status
+  ansible.builtin.debug:
+    msg: 
+      - "Firewall status: {{ firewall_check.stdout_lines | default(['No output']) }}"
+      - "If the ports are not listed, you may need to add them: firewall-cmd --permanent --add-port={{ keycloak_https_port }}/tcp --add-port=8080/tcp && firewall-cmd --reload"
+  when: firewall_check is defined
+
 - name: Wait for Keycloak to be ready
   uri:
     url: "https://{{ ansible_host }}:{{ keycloak_https_port }}/health/ready"

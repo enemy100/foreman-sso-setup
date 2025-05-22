@@ -37,25 +37,35 @@ foreman-sso-setup/
 │   └── workflows/
 ├── docs/
 ├── host_vars/
+│   └── foreman_vars.yml
 ├── roles/
 │   └── keycloak_setup/
 │       ├── defaults/
-│       ├── files/
+│       │   └── main.yml
 │       ├── tasks/
+│       │   ├── main.yml
+│       │   ├── java.yml
+│       │   ├── install.yml
+│       │   ├── configure.yml
+│       │   ├── users.yml
+│       │   ├── groups.yml
+│       │   ├── roles.yml
+│       │   ├── password_policy.yml
+│       │   ├── themes.yml
+│       │   └── verify.yml
 │       └── templates/
+│           └── keycloak.service.j2
 ├── inventory.yml
+├── requirements.yml
 ├── README.md
 ├── site.yml
 └── test_integration.yml
 ```
 
-> **Important:**
-> The `keycloak_setup` role **must** be inside `roles/keycloak_setup/` (not directly in `roles/`).
-> If you get an error like `the role 'keycloak_setup' was not found`, check your directory structure!
 
 ## Configuration
 
-1. Configure variables in `host_vars/foreman_vars.yml`:
+1. Configure variables in `host_vars/foreman_vars.yml` or use the defaults from `roles/keycloak_setup/defaults/main.yml`:
    ```yaml
    keycloak_version: "21.1.1"
    keycloak_admin_user: "admin"
@@ -67,6 +77,17 @@ foreman-sso-setup/
 
 2. Adjust user, group, and role settings as needed.
 
+3. Ensure `requirements.yml` includes all necessary collections:
+   ```yaml
+   collections:
+     - name: community.general
+       version: ">=7.0.0,<8.0.0"  # Compatible with Ansible 2.14
+     - name: ansible.posix
+       version: ">=1.4.0,<2.0.0"
+     - name: community.crypto
+       version: ">=2.0.0,<3.0.0"
+   ```
+
 ## Manual Installation
 
 Clone this repository and run the playbook:
@@ -74,22 +95,48 @@ Clone this repository and run the playbook:
 ```bash
 git clone https://github.com/enemy100/foreman-sso-setup.git
 cd foreman-sso-setup
+ansible-galaxy collection install -r requirements.yml
 ansible-playbook -i inventory.yml site.yml
 ```
 
-## Inventory Example (Root Usage)
+## Local Installation (Same Server)
 
-For didactic/lab use, it is recommended to run Ansible as root for simplicity. Your `inventory.yml` should look like:
+If you want to install Keycloak on the same server where you're running Ansible:
+
+1. Update your inventory to use local connection:
+   ```ini
+   [foreman]
+   foremanserver.mydomain.com ansible_connection=local
+   ```
+
+2. Run the playbook:
+   ```bash
+   ansible-playbook -i inventory.yml site.yml
+   ```
+
+## Inventory Example
+
+Your `inventory.yml` should look like one of these examples:
+
+### Remote Server Installation
+For installation on a remote server:
 
 ```ini
 [foreman]
 foremanserver.mydomain.com ansible_host=192.168.2.1
-
 ```
 
 - `foremanserver.mydomain.com` is the FQDN used for SSO/certificates.
 - `ansible_host` is the IP or DNS of the target server.
 - By default, Ansible will connect as root (if you run `ansible-playbook` as root or specify `-u root`).
+
+### Local Installation
+For installation on the same server where you're running Ansible:
+
+```ini
+[foreman]
+foremanserver.mydomain.com ansible_connection=local
+```
 
 ## Integration Tests
 

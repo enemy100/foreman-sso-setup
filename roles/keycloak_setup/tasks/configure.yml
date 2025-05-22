@@ -1,7 +1,18 @@
 ---
 # Keycloak configuration tasks
 
-- name: Create Keycloak initial admin user
+- name: Check if kc.sh exists
+  ansible.builtin.stat:
+    path: /opt/keycloak/bin/kc.sh
+  register: kc_script
+
+- name: Check if standalone.sh exists (older versions)
+  ansible.builtin.stat:
+    path: /opt/keycloak/bin/standalone.sh
+  register: standalone_script
+  when: not kc_script.stat.exists
+
+- name: Configure Keycloak (newer versions)
   ansible.builtin.command:
     cmd: "/opt/keycloak/bin/kc.sh build --db=dev-file"
     chdir: /opt/keycloak
@@ -9,16 +20,14 @@
   become_user: keycloak
   register: kc_build
   changed_when: kc_build.rc == 0
+  when: kc_script.stat.exists
 
-- name: Configure Keycloak
-  ansible.builtin.command:
-    cmd: "/opt/keycloak/bin/kc.sh start-dev --http-port=8080 --https-port={{ keycloak_https_port }} --hostname={{ ansible_host }} --https-key-store-password=password --https-certificate-file=/etc/pki/tls/certs/localhost.crt --https-certificate-key-file=/etc/pki/tls/private/localhost.key"
-    chdir: /opt/keycloak
-  become: yes
-  become_user: keycloak
-  async: 60
-  poll: 0
-  register: kc_start
+- name: Enable Keycloak systemd service
+  ansible.builtin.systemd:
+    name: keycloak
+    enabled: yes
+    state: started
+  register: keycloak_service
 
 - name: Wait for Keycloak to start
   ansible.builtin.uri:
@@ -29,6 +38,20 @@
   until: result.status == 200
   retries: 30
   delay: 10
+  ignore_errors: yes
+  
+- name: Check if Keycloak is running
+  ansible.builtin.command: 
+    cmd: systemctl status keycloak
+  register: keycloak_status
+  changed_when: false
+  failed_when: false
+  when: result.status is undefined or result.status != 200
+
+- name: Show Keycloak status
+  ansible.builtin.debug:
+    var: keycloak_status.stdout_lines
+  when: keycloak_status is defined and keycloak_status.stdout_lines is defined
 
 - name: Create Foreman realm
   community.general.keycloak_realm:
@@ -41,6 +64,7 @@
     enabled: true
     display_name: "Foreman SSO Realm"
     state: present
+  when: result.status is defined and result.status == 200
 
 - name: Create Foreman client
   community.general.keycloak_client:
@@ -60,4 +84,5 @@
     root_url: "https://{{ ansible_host }}"
     base_url: "/users/auth/keycloak"
     protocol: openid-connect
-    state: present 
+    state: present
+  when: result.status is defined and result.status == 200 
