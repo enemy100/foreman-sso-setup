@@ -10,12 +10,11 @@
     realm: "{{ foreman_realm_name }}"
     username: admin
     email: admin@example.com
-    firstname: Admin
-    lastname: User
+    first_name: Admin
+    last_name: User
     enabled: true
     attributes:
-      - name: locale
-        value: en
+      locale: en
     state: present
   register: admin_user
 
@@ -42,12 +41,11 @@
     realm: "{{ foreman_realm_name }}"
     username: "{{ item.username }}"
     email: "{{ item.email }}"
-    firstname: "{{ item.firstname }}"
-    lastname: "{{ item.lastname }}"
+    first_name: "{{ item.firstname }}"
+    last_name: "{{ item.lastname }}"
     enabled: true
     attributes:
-      - name: locale
-        value: en
+      locale: en
     state: present
   loop: "{{ keycloak_users }}"
   when: keycloak_users is defined
