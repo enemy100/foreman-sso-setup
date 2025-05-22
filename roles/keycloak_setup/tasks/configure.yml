@@ -94,6 +94,23 @@
   delay: 10
   ignore_errors: yes
 
+- name: Copy Keycloak setup script
+  ansible.builtin.copy:
+    src: setup_keycloak.sh
+    dest: /tmp/setup_keycloak.sh
+    mode: '0755'
+  
+- name: Run Keycloak setup script
+  ansible.builtin.command:
+    cmd: "/tmp/setup_keycloak.sh {{ keycloak_admin_user }} {{ keycloak_admin_password }} {{ foreman_realm_name }} {{ foreman_client_id }} https://{{ ansible_host }}/users/auth/keycloak/callback"
+  register: setup_result
+  changed_when: setup_result.rc == 0
+  ignore_errors: yes
+  
+- name: Debug setup script result
+  ansible.builtin.debug:
+    var: setup_result
+
 - name: Manually create admin user
   ansible.builtin.shell:
     cmd: |
