@@ -54,6 +54,47 @@ For HA deployment:
 3. Configure session replication
 4. Set up monitoring
 
+### 5. Manual Realm and Client Setup
+
+The Ansible playbook installs and configures Keycloak, but realm and client creation must be done manually:
+
+#### Accessing the Admin Console
+
+Access the Keycloak admin console at `http://your-server:8080/admin/` and log in with the admin credentials configured in your Ansible variables.
+
+#### Creating a Realm
+
+1. Hover over the "master" realm in the top-left dropdown
+2. Click "Create Realm"
+3. Configure:
+   ```yaml
+   # Realm Configuration
+   name: foreman
+   enabled: true
+   display-name: Foreman SSO Realm
+   ```
+
+#### Creating a Client
+
+1. In your new realm, navigate to "Clients"
+2. Click "Create Client"
+3. Configure:
+   ```yaml
+   # Client Configuration
+   client-id: foreman
+   protocol: openid-connect
+   access-type: confidential
+   standard-flow-enabled: true
+   direct-access-grants-enabled: true
+   root-url: https://your-foreman-server
+   valid-redirect-uris: https://your-foreman-server/users/auth/keycloak/callback
+   web-origins: https://your-foreman-server or +
+   ```
+
+#### Client Secret
+
+After creating the client, navigate to the "Credentials" tab to obtain the client secret needed for Foreman configuration.
+
 ## Security Hardening
 
 ### 1. Password Policies

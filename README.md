@@ -8,7 +8,6 @@ The project uses Ansible to automate the installation and configuration of Keycl
 
 - Keycloak installation and configuration
 - Foreman integration via OpenID Connect
-- User, group, and role management
 - Security and password policies
 - Automated integration tests
 
@@ -47,13 +46,11 @@ foreman-sso-setup/
 │       │   ├── java.yml
 │       │   ├── install.yml
 │       │   ├── configure.yml
-│       │   ├── users.yml
-│       │   ├── groups.yml
-│       │   ├── roles.yml
-│       │   ├── password_policy.yml
-│       │   ├── themes.yml
 │       │   └── verify.yml
+│       ├── files/
+│       │   └── setup_keycloak.sh
 │       └── templates/
+│           ├── keycloak.conf.j2
 │           └── keycloak.service.j2
 ├── inventory.yml
 ├── requirements.yml
@@ -75,9 +72,7 @@ foreman-sso-setup/
    foreman_client_id: "foreman"
    ```
 
-2. Adjust user, group, and role settings as needed.
-
-3. Ensure `requirements.yml` includes all necessary collections:
+2. Ensure `requirements.yml` includes all necessary collections:
    ```yaml
    collections:
      - name: community.general
@@ -137,6 +132,66 @@ For installation on the same server where you're running Ansible:
 [foreman]
 foremanserver.mydomain.com ansible_connection=local
 ```
+
+## Manual Realm and Client Configuration
+
+After installing Keycloak with this playbook, you'll need to manually configure the realm and client:
+
+### 1. Access the Keycloak Admin Console
+
+- Open your browser and navigate to: `http://your-server:8080/admin/`
+- Log in with the admin username and password you configured in your variables
+
+### 2. Create a New Realm
+
+1. Hover over the dropdown in the top-left corner (shows "master" by default)
+2. Click "Create Realm"
+3. Enter the following details:
+   - Realm name: `foreman` (or your configured realm name)
+   - Enabled: `ON`
+4. Click "Create"
+
+### 3. Create a New Client
+
+1. In your new realm, go to "Clients" in the left sidebar
+2. Click "Create client"
+3. Enter the following details:
+   - Client type: `OpenID Connect`
+   - Client ID: `foreman` (or your configured client ID)
+4. Click "Next"
+5. Configure the client settings:
+   - Client authentication: `ON`
+   - Authorization: `OFF`
+   - Standard flow: `ON`
+   - Direct access grants: `ON`
+   - Service accounts: `OFF`
+6. Click "Next"
+7. Configure the login settings:
+   - Root URL: `https://your-foreman-server`
+   - Valid redirect URIs: `https://your-foreman-server/users/auth/keycloak/callback`
+   - Web origins: `https://your-foreman-server` or `+` (to allow all origins matching redirect URIs)
+8. Click "Save"
+
+### 4. Configure Client Secret
+
+1. Go to the "Credentials" tab of your client
+2. Copy the "Client secret" - you'll need this for Foreman configuration
+3. Make sure "Client authenticator" is set to "Client ID and Secret"
+
+### 5. Create Roles (Optional)
+
+1. Go to "Realm roles" in the left sidebar
+2. Click "Create role"
+3. Add roles like `admin`, `user`, etc., as needed for your Foreman instance
+
+### 6. Create Users (Optional)
+
+1. Go to "Users" in the left sidebar
+2. Click "Add user"
+3. Fill in the user details and click "Create"
+4. Go to the "Credentials" tab for the user
+5. Set a password and turn off "Temporary" if desired
+6. Click "Set Password"
 
 ## Integration Tests
 
@@ -218,7 +273,7 @@ Follow these steps:
 ### 4. Monitoring and Results
 - You can follow the progress in the Actions tab
 - If the workflow fails, check the logs for troubleshooting
-- On success, your Foreman instance will be SSO-enabled with Keycloak
+- On success, your Keycloak will be installed and ready for manual realm/client configuration
 
 ---
 
