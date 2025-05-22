@@ -24,9 +24,34 @@
     state: absent
   become: yes
 
+- name: Create admin user config file
+  ansible.builtin.copy:
+    content: |
+      # Basic settings for running in production. Change accordingly before deploying the server.
+      
+      # Database
+      db=dev-file
+      
+      # Observability
+      health-enabled=true
+      metrics-enabled=true
+      
+      # HTTP
+      http-enabled=true
+      http-port=8080
+      hostname-strict=false
+      
+      # Admin credentials
+      admin-user={{ keycloak_admin_user }}
+      admin-password={{ keycloak_admin_password }}
+    dest: /opt/keycloak/conf/keycloak.conf
+    owner: keycloak
+    group: keycloak
+    mode: '0640'
+
 - name: Configure Keycloak (newer versions)
   ansible.builtin.command:
-    cmd: "/opt/keycloak/bin/kc.sh build --db=dev-file"
+    cmd: "/opt/keycloak/bin/kc.sh build"
     chdir: /opt/keycloak
   become: yes
   become_user: keycloak
@@ -75,6 +100,16 @@
   ansible.builtin.debug:
     var: keycloak_status.stdout_lines
   when: keycloak_status is defined and keycloak_status.stdout_lines is defined
+
+- name: Wait for admin REST endpoint to be available
+  ansible.builtin.uri:
+    url: "http://localhost:8080/admin/"
+    method: GET
+  register: admin_result
+  until: admin_result.status is defined
+  retries: 30
+  delay: 10
+  ignore_errors: yes
 
 - name: Authenticate to Keycloak
   ansible.builtin.command:
