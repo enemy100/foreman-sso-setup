@@ -60,7 +60,7 @@ foreman-sso-setup/
 
 2. Adjust user, group, and role settings as needed.
 
-## Installation
+## Installation (Manual)
 
 Run the main playbook:
 ```bash
@@ -117,19 +117,35 @@ The project includes automated tests to verify the integration between Foreman a
    cat /tmp/foreman_keycloak_test_report.html
    ```
 
-## GitHub Actions
+## Automated Installation with GitHub Actions
 
-The project includes a GitHub Actions workflow to automate the deployment process:
+This project includes a GitHub Actions workflow for automated SSO deployment.
 
-1. **Code Verification**
-   - Ansible linting
-   - YAML syntax validation
-   - Integration tests
+### 1. Configure GitHub Secrets
+Go to your repository settings > **Secrets and variables** > **Actions** and add:
+- `SSH_PRIVATE_KEY`: Your private SSH key for accessing the Foreman server
+- `KEYCLOAK_ADMIN_PASSWORD`: The Keycloak admin password
 
-2. **Automated Deployment**
-   - Environment setup
-   - Playbook execution
-   - Post-deployment verification
+### 2. Trigger the Workflow
+- Go to the **Actions** tab in your GitHub repository
+- Select the workflow (e.g., `Deploy SSO`)
+- Click **Run workflow**
+- Fill in any required inputs (e.g., Foreman host, Keycloak version)
+- Click **Run workflow**
+
+### 3. What Happens Next?
+- The workflow will:
+  - Checkout the repository
+  - Set up SSH access to your server
+  - Run the Ansible playbook to install and configure Keycloak SSO
+  - Run integration tests and show results in the Actions log
+
+### 4. Monitoring and Results
+- You can follow the progress in the Actions tab
+- If the workflow fails, check the logs for troubleshooting
+- On success, your Foreman instance will be SSO-enabled with Keycloak
+
+---
 
 ## Security
 
@@ -159,10 +175,6 @@ The project includes a GitHub Actions workflow to automate the deployment proces
 3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
 4. Push to the branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## Support
 
