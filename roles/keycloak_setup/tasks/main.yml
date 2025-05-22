@@ -1,15 +1,6 @@
 ---
 # Main tasks for Keycloak setup
 
-- name: Include Java installation tasks
-  ansible.builtin.import_tasks: java.yml
-
-- name: Include Keycloak installation tasks
-  ansible.builtin.import_tasks: install.yml
-
-- name: Include Keycloak configuration tasks
-  ansible.builtin.import_tasks: configure.yml
-
 - name: Include user management tasks
   ansible.builtin.import_tasks: users.yml
 
@@ -21,9 +12,6 @@
 
 - name: Include password policy tasks
   ansible.builtin.import_tasks: password_policy.yml
-
-- name: Include theme configuration tasks
-  ansible.builtin.import_tasks: themes.yml
 
 - name: Include verification tasks
   ansible.builtin.import_tasks: verify.yml 
