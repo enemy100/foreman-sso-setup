@@ -27,6 +27,10 @@ jobs:
           python -m pip install --upgrade pip
           pip install ansible==8.7.0
           
+      - name: Install required collections
+        run: |
+          ansible-galaxy collection install -r requirements.yml
+          
       - name: Configure SSH
         run: |
           mkdir -p ~/.ssh/
@@ -37,23 +41,30 @@ jobs:
       - name: Create inventory
         run: |
           cat > inventory.yml << EOF
-          all:
-            hosts:
-              foreman:
-                ansible_host: ${{ github.event.inputs.foreman_host }}
-                ansible_user: ${{ secrets.ANSIBLE_USER }}
+          [foreman]
+          ${{ github.event.inputs.foreman_host }} ansible_user=root
           EOF
           
+      - name: Setup host_vars
+        run: |
+          mkdir -p host_vars
+          cat > host_vars/foreman_vars.yml << EOF
+          keycloak_version: "${{ github.event.inputs.keycloak_version }}"
+          keycloak_admin_user: "admin"
+          keycloak_admin_password: "${{ secrets.KEYCLOAK_ADMIN_PASSWORD }}"
+          keycloak_https_port: 8443
+          foreman_realm_name: "foreman"
+          foreman_client_id: "foreman"
+          foreman_host: "${{ github.event.inputs.foreman_host }}"
+          EOF
+            
       - name: Deploy SSO
         run: |
-          cd ansible/playbooks
-          ansible-playbook -i ../../inventory.yml site.yml \
-            -e "foreman_host=${{ github.event.inputs.foreman_host }}" \
-            -e "keycloak_version=${{ github.event.inputs.keycloak_version }}"
+          ansible-playbook -i inventory.yml site.yml
             
       - name: Verify Installation
         run: |
-          curl -s -o /dev/null -w "%{http_code}" https://${{ github.event.inputs.foreman_host }}/users/auth/keycloak
+          ansible-playbook -i inventory.yml test_integration.yml
         continue-on-error: true
         
       - name: Cleanup

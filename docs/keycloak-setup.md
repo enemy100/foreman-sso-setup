@@ -210,4 +210,48 @@ ALTER SYSTEM SET effective_cache_size = '3GB';
 4. Verify configuration
 5. Start service
 6. Test functionality
+```
+
+## Ansible Installation
+
+This project provides an automated Ansible-based installation for Keycloak:
+
+```bash
+# Install required collections
+ansible-galaxy collection install -r requirements.yml
+
+# Run the playbook
+ansible-playbook -i inventory.yml site.yml
+```
+
+### Inventory Configuration
+
+Your inventory should look like this for remote installation:
+
+```ini
+[foreman]
+foremanserver.mydomain.com ansible_host=192.168.2.1
+```
+
+Or like this for local installation:
+
+```ini
+[foreman]
+foremanserver.mydomain.com ansible_connection=local
+```
+
+### Variables Configuration
+
+Key variables can be configured in `host_vars/foreman_vars.yml`:
+
+```yaml
+# Keycloak version and configuration
+keycloak_version: "21.1.1"
+keycloak_admin_user: "admin"
+keycloak_admin_password: "your-secure-password"
+keycloak_https_port: 8443
+
+# Foreman realm and client
+foreman_realm_name: "foreman"
+foreman_client_id: "foreman"
 ``` 
