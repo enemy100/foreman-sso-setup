@@ -121,10 +121,16 @@ The project includes automated tests to verify the integration between Foreman a
 
 This project includes a GitHub Actions workflow for automated SSO deployment.
 
-### 1. Configure GitHub Secrets
-Go to your repository settings > **Secrets and variables** > **Actions** and add:
-- `SSH_PRIVATE_KEY`: Your private SSH key for accessing the Foreman server
-- `KEYCLOAK_ADMIN_PASSWORD`: The Keycloak admin password
+### 1. Prepare SSH Key and GitHub Secrets
+If you don't have an SSH key for GitHub Actions to access your server, generate one:
+```bash
+ssh-keygen -t rsa -b 4096 -C "github-actions"
+```
+Add the **public key** to your server's `~/.ssh/authorized_keys`.
+
+In your repository, go to **Settings > Secrets and variables > Actions** and add:
+- `SSH_PRIVATE_KEY`: (content of the private key you just generated)
+- `KEYCLOAK_ADMIN_PASSWORD`: (your chosen Keycloak admin password)
 
 ### 2. Trigger the Workflow
 - Go to the **Actions** tab in your GitHub repository
@@ -179,13 +185,6 @@ Go to your repository settings > **Secrets and variables** > **Actions** and add
 ## Support
 
 For support, open an issue on GitHub or contact the infrastructure team.
-
-# Generate SSH key
-ssh-keygen -t rsa -b 4096 -C "github-actions"
-
-# Add to GitHub Secrets
-# SSH_PRIVATE_KEY: (content of private key)
-# KEYCLOAK_ADMIN_PASSWORD: (your chosen password)
 
 
 
