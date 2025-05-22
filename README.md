@@ -62,6 +62,16 @@ foreman-sso-setup/
 
 2. Adjust user, group, and role settings as needed.
 
+## Manual Installation
+
+Clone this repository and run the playbook:
+
+```bash
+git clone https://github.com/enemy100/foreman-sso-setup.git
+cd foreman-sso-setup
+ansible-playbook -i inventory.yml site.yml
+```
+
 ## Inventory Example (Root Usage)
 
 For didactic/lab use, it is recommended to run Ansible as root for simplicity. Your `inventory.yml` should look like:
@@ -74,13 +84,6 @@ foreman.example.com ansible_host=192.168.56.10
 - `foreman.example.com` is the FQDN used for SSO/certificates.
 - `ansible_host` is the IP or DNS of the target server.
 - By default, Ansible will connect as root (if you run `ansible-playbook` as root or specify `-u root`).
-
-## Installation (Manual)
-
-Run the main playbook from the root of the project:
-```bash
-ansible-playbook -i inventory.yml site.yml
-```
 
 ## Integration Tests
 
@@ -108,6 +111,18 @@ cat /tmp/foreman_keycloak_test_report.html
 
 ---
 
+## How to Fork this Repository
+
+If you want to use GitHub Actions in your own account, you need to fork this repository:
+
+1. Go to the original repository: [https://github.com/enemy100/foreman-sso-setup](https://github.com/enemy100/foreman-sso-setup)
+2. Click the **Fork** button (top right of the page).
+3. Select your personal account (or organization) as the destination.
+4. Wait for GitHub to create the fork. You will be redirected to your new fork at `https://github.com/YOUR_USERNAME/foreman-sso-setup`.
+5. Now you can clone, configure secrets, and use GitHub Actions in your own fork!
+
+---
+
 ## Automated Installation with GitHub Actions
 
 This project includes a GitHub Actions workflow for automated SSO deployment.
@@ -123,12 +138,22 @@ In your repository, go to **Settings > Secrets and variables > Actions** and add
 - `SSH_PRIVATE_KEY`: (content of the private key you just generated)
 - `KEYCLOAK_ADMIN_PASSWORD`: (your chosen Keycloak admin password)
 
-### 2. Trigger the Workflow
-- Go to the **Actions** tab in your GitHub repository
-- Select the workflow (e.g., `Deploy SSO`)
-- Click **Run workflow**
-- Fill in any required inputs (e.g., Foreman host, Keycloak version)
-- Click **Run workflow**
+### 2. Using GitHub Actions (for any user)
+
+Follow these steps:
+
+1. **Fork this repository** to your own GitHub account (see above).
+2. **Add the required secrets** in your fork:
+   - Go to `Settings > Secrets and variables > Actions`
+   - Add `SSH_PRIVATE_KEY` and `KEYCLOAK_ADMIN_PASSWORD`
+3. **Trigger the workflow**:
+   - Go to the `Actions` tab in your fork
+   - Select the workflow (e.g., `Deploy SSO`)
+   - Click `Run workflow` and fill in the required inputs
+
+> **Note:**  
+> The SSH key you provide must have access to the target server.  
+> You can only see and use secrets in your own fork, not in the original repository.
 
 ### 3. What Happens Next?
 - The workflow will:
