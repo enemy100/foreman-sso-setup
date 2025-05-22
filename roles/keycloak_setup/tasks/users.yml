@@ -14,8 +14,7 @@
     last_name: User
     enabled: true
     attributes:
-      - key: locale
-        value: en
+      locale: en
     state: present
   register: admin_user
 
@@ -46,8 +45,7 @@
     last_name: "{{ item.lastname }}"
     enabled: true
     attributes:
-      - key: locale
-        value: en
+      locale: en
     state: present
   loop: "{{ keycloak_users }}"
   when: keycloak_users is defined

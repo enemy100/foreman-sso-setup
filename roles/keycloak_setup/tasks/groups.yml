@@ -10,8 +10,7 @@
     realm: "{{ foreman_realm_name }}"
     name: "{{ item.name }}"
     attributes:
-      - key: description
-        value: "{{ item.description }}"
+      description: "{{ item.description }}"
     state: present
   loop: "{{ keycloak_groups }}"
   when: keycloak_groups is defined
