@@ -76,49 +76,35 @@
     var: keycloak_status.stdout_lines
   when: keycloak_status is defined and keycloak_status.stdout_lines is defined
 
-- name: Create initial admin user
+- name: Authenticate to Keycloak
   ansible.builtin.command:
-    cmd: "/opt/keycloak/bin/kcadm.sh create users -r master -s username={{ keycloak_admin_user }} -s enabled=true -s firstName=Admin -s lastName=User -s credentials=[{\"type\":\"password\",\"value\":\"{{ keycloak_admin_password }}\",\"temporary\":false}]"
+    cmd: "/opt/keycloak/bin/kcadm.sh config credentials --server http://localhost:8080 --realm master --user {{ keycloak_admin_user }} --password {{ keycloak_admin_password }}"
     chdir: /opt/keycloak
-  environment:
-    KEYCLOAK_ADMIN: "{{ keycloak_admin_user }}"
-    KEYCLOAK_ADMIN_PASSWORD: "{{ keycloak_admin_password }}"
   become: yes
   become_user: keycloak
-  register: admin_creation
-  changed_when: admin_creation.rc == 0
+  register: auth_result
+  changed_when: auth_result.rc == 0
+  
+- name: Debug authentication result
+  ansible.builtin.debug:
+    var: auth_result
+    
+- name: Create Foreman realm
+  ansible.builtin.command:
+    cmd: "/opt/keycloak/bin/kcadm.sh create realms -s realm={{ foreman_realm_name }} -s enabled=true -s displayName='Foreman SSO Realm'"
+    chdir: /opt/keycloak
+  become: yes
+  become_user: keycloak
+  register: realm_result
+  changed_when: realm_result.rc == 0
   failed_when: false
   
-- name: Create Foreman realm
-  community.general.keycloak_realm:
-    auth_keycloak_url: "http://localhost:8080"
-    auth_realm: master
-    auth_username: "{{ keycloak_admin_user }}"
-    auth_password: "{{ keycloak_admin_password }}"
-    id: "{{ foreman_realm_name }}"
-    realm: "{{ foreman_realm_name }}"
-    enabled: true
-    display_name: "Foreman SSO Realm"
-    state: present
-  when: result.status is defined and result.status == 200
-
 - name: Create Foreman client
-  community.general.keycloak_client:
-    auth_keycloak_url: "http://localhost:8080"
-    auth_realm: master
-    auth_username: "{{ keycloak_admin_user }}"
-    auth_password: "{{ keycloak_admin_password }}"
-    realm: "{{ foreman_realm_name }}"
-    client_id: "{{ foreman_client_id }}"
-    enabled: true
-    redirect_uris:
-      - "https://{{ ansible_host }}/users/auth/keycloak/callback"
-    web_origins:
-      - "+"
-    standard_flow_enabled: true
-    direct_access_grants_enabled: true
-    root_url: "https://{{ ansible_host }}"
-    base_url: "/users/auth/keycloak"
-    protocol: openid-connect
-    state: present
-  when: result.status is defined and result.status == 200 
+  ansible.builtin.command:
+    cmd: "/opt/keycloak/bin/kcadm.sh create clients -r {{ foreman_realm_name }} -s clientId={{ foreman_client_id }} -s enabled=true -s redirectUris=[\"https://{{ ansible_host }}/users/auth/keycloak/callback\"] -s webOrigins=[\"+\"] -s standardFlowEnabled=true -s directAccessGrantsEnabled=true -s rootUrl=\"https://{{ ansible_host }}\" -s baseUrl=\"/users/auth/keycloak\" -s protocol=openid-connect"
+    chdir: /opt/keycloak
+  become: yes
+  become_user: keycloak
+  register: client_result
+  changed_when: client_result.rc == 0
+  failed_when: false 
