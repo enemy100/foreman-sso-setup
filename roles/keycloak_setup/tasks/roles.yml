@@ -29,20 +29,21 @@
   when: keycloak_client_roles is defined
 
 - name: Assign roles to users
-  community.general.keycloak_user_roles:
+  community.general.keycloak_user:
     auth_keycloak_url: "https://{{ ansible_host }}:{{ keycloak_https_port }}"
     auth_realm: master
     auth_username: "{{ keycloak_admin_user }}"
     auth_password: "{{ keycloak_admin_password }}"
     realm: "{{ foreman_realm_name }}"
     username: "{{ item.user }}"
-    roles: "{{ item.roles }}"
+    roles:
+      - "{{ item.roles }}"
     state: present
   loop: "{{ keycloak_user_roles }}"
   when: keycloak_user_roles is defined
 
 - name: Assign client roles to users
-  community.general.keycloak_user_roles:
+  community.general.keycloak_user:
     auth_keycloak_url: "https://{{ ansible_host }}:{{ keycloak_https_port }}"
     auth_realm: master
     auth_username: "{{ keycloak_admin_user }}"
@@ -50,7 +51,8 @@
     realm: "{{ foreman_realm_name }}"
     client_id: "{{ foreman_client_id }}"
     username: "{{ item.user }}"
-    roles: "{{ item.roles }}"
+    roles:
+      - "{{ item.roles }}"
     state: present
   loop: "{{ keycloak_client_user_roles }}"
   when: keycloak_client_user_roles is defined 
