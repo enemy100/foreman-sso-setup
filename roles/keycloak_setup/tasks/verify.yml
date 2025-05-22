@@ -20,23 +20,9 @@
   failed_when: false
   changed_when: false
 
-- name: Check Keycloak HTTPS endpoint
-  ansible.builtin.uri:
-    url: "https://localhost:{{ keycloak_https_port }}/"
-    method: GET
-    validate_certs: no
-    status_code: 200, 301, 302, 307, 308
-  register: https_result
-  failed_when: false
-  changed_when: false
-
 - name: Show HTTP endpoint results
   ansible.builtin.debug:
     msg: "HTTP endpoint status: {{ http_result.status | default('unreachable') }}"
-
-- name: Show HTTPS endpoint results
-  ansible.builtin.debug:
-    msg: "HTTPS endpoint status: {{ https_result.status | default('unreachable') }}"
 
 - name: Check if firewall might be blocking access
   ansible.builtin.shell: |
@@ -54,7 +40,7 @@
 
 - name: Wait for Keycloak to be ready
   uri:
-    url: "https://{{ ansible_host }}:{{ keycloak_https_port }}/health/ready"
+    url: "http://localhost:8080/health/ready"
     method: GET
     validate_certs: false
     status_code: 200
@@ -65,7 +51,7 @@
 
 - name: Verify Keycloak admin console access
   uri:
-    url: "https://{{ ansible_host }}:{{ keycloak_https_port }}/admin"
+    url: "http://localhost:8080/admin"
     method: GET
     validate_certs: false
     status_code: 200
@@ -73,7 +59,7 @@
 
 - name: Verify Foreman client configuration
   uri:
-    url: "https://{{ ansible_host }}:{{ keycloak_https_port }}/realms/{{ foreman_realm_name }}/.well-known/openid-configuration"
+    url: "http://localhost:8080/realms/{{ foreman_realm_name }}/.well-known/openid-configuration"
     method: GET
     validate_certs: false
     status_code: 200
@@ -90,7 +76,7 @@
 - name: Run integration tests
   script: "{{ role_path }}/files/test_integration.sh"
   environment:
-    KEYCLOAK_URL: "https://{{ ansible_host }}:{{ keycloak_https_port }}"
+    KEYCLOAK_URL: "http://localhost:8080"
     KEYCLOAK_REALM: "{{ foreman_realm_name }}"
     KEYCLOAK_CLIENT: "{{ foreman_client_id }}"
     FOREMAN_URL: "https://{{ foreman_host }}"

@@ -3,7 +3,7 @@
 
 - name: Create Foreman groups
   community.general.keycloak_group:
-    auth_keycloak_url: "https://{{ ansible_host }}:{{ keycloak_https_port }}"
+    auth_keycloak_url: "http://localhost:8080"
     auth_realm: master
     auth_username: "{{ keycloak_admin_user }}"
     auth_password: "{{ keycloak_admin_password }}"
@@ -17,7 +17,7 @@
 
 - name: Add users to groups
   community.general.keycloak_user:
-    auth_keycloak_url: "https://{{ ansible_host }}:{{ keycloak_https_port }}"
+    auth_keycloak_url: "http://localhost:8080"
     auth_realm: master
     auth_username: "{{ keycloak_admin_user }}"
     auth_password: "{{ keycloak_admin_password }}"

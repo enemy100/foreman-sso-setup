@@ -3,7 +3,7 @@
 
 - name: Create Foreman roles
   community.general.keycloak_role:
-    auth_keycloak_url: "https://{{ ansible_host }}:{{ keycloak_https_port }}"
+    auth_keycloak_url: "http://localhost:8080"
     auth_realm: master
     auth_username: "{{ keycloak_admin_user }}"
     auth_password: "{{ keycloak_admin_password }}"
@@ -16,7 +16,7 @@
 
 - name: Create client roles
   community.general.keycloak_role:
-    auth_keycloak_url: "https://{{ ansible_host }}:{{ keycloak_https_port }}"
+    auth_keycloak_url: "http://localhost:8080"
     auth_realm: master
     auth_username: "{{ keycloak_admin_user }}"
     auth_password: "{{ keycloak_admin_password }}"
@@ -30,7 +30,7 @@
 
 - name: Assign roles to users
   community.general.keycloak_user:
-    auth_keycloak_url: "https://{{ ansible_host }}:{{ keycloak_https_port }}"
+    auth_keycloak_url: "http://localhost:8080"
     auth_realm: master
     auth_username: "{{ keycloak_admin_user }}"
     auth_password: "{{ keycloak_admin_password }}"
@@ -44,7 +44,7 @@
 
 - name: Assign client roles to users
   community.general.keycloak_user:
-    auth_keycloak_url: "https://{{ ansible_host }}:{{ keycloak_https_port }}"
+    auth_keycloak_url: "http://localhost:8080"
     auth_realm: master
     auth_username: "{{ keycloak_admin_user }}"
     auth_password: "{{ keycloak_admin_password }}"

@@ -3,7 +3,7 @@
 
 - name: Create admin user
   community.general.keycloak_user:
-    auth_keycloak_url: "https://{{ ansible_host }}:{{ keycloak_https_port }}"
+    auth_keycloak_url: "http://localhost:8080"
     auth_realm: master
     auth_username: "{{ keycloak_admin_user }}"
     auth_password: "{{ keycloak_admin_password }}"
@@ -13,12 +13,14 @@
     first_name: Admin
     last_name: User
     enabled: true
+    attributes:
+      locale: en
     state: present
   register: admin_user
 
 - name: Set admin user password
   community.general.keycloak_user:
-    auth_keycloak_url: "https://{{ ansible_host }}:{{ keycloak_https_port }}"
+    auth_keycloak_url: "http://localhost:8080"
     auth_realm: master
     auth_username: "{{ keycloak_admin_user }}"
     auth_password: "{{ keycloak_admin_password }}"
@@ -32,7 +34,7 @@
 
 - name: Create regular users
   community.general.keycloak_user:
-    auth_keycloak_url: "https://{{ ansible_host }}:{{ keycloak_https_port }}"
+    auth_keycloak_url: "http://localhost:8080"
     auth_realm: master
     auth_username: "{{ keycloak_admin_user }}"
     auth_password: "{{ keycloak_admin_password }}"
@@ -42,13 +44,15 @@
     first_name: "{{ item.firstname }}"
     last_name: "{{ item.lastname }}"
     enabled: true
+    attributes:
+      locale: en
     state: present
   loop: "{{ keycloak_users }}"
   when: keycloak_users is defined
 
 - name: Set user passwords
   community.general.keycloak_user:
-    auth_keycloak_url: "https://{{ ansible_host }}:{{ keycloak_https_port }}"
+    auth_keycloak_url: "http://localhost:8080"
     auth_realm: master
     auth_username: "{{ keycloak_admin_user }}"
     auth_password: "{{ keycloak_admin_password }}"

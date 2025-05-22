@@ -29,13 +29,12 @@
     state: started
   register: keycloak_service
 
-- name: Wait for Keycloak to start
+- name: Wait for Keycloak to start (HTTP)
   ansible.builtin.uri:
-    url: "https://localhost:{{ keycloak_https_port }}/health/ready"
+    url: "http://localhost:8080/"
     method: GET
-    validate_certs: no
   register: result
-  until: result.status == 200
+  until: result.status is defined and result.status == 200
   retries: 30
   delay: 10
   ignore_errors: yes
@@ -55,7 +54,7 @@
 
 - name: Create Foreman realm
   community.general.keycloak_realm:
-    auth_keycloak_url: "https://{{ ansible_host }}:{{ keycloak_https_port }}"
+    auth_keycloak_url: "http://localhost:8080"
     auth_realm: master
     auth_username: "{{ keycloak_admin_user }}"
     auth_password: "{{ keycloak_admin_password }}"
@@ -68,7 +67,7 @@
 
 - name: Create Foreman client
   community.general.keycloak_client:
-    auth_keycloak_url: "https://{{ ansible_host }}:{{ keycloak_https_port }}"
+    auth_keycloak_url: "http://localhost:8080"
     auth_realm: master
     auth_username: "{{ keycloak_admin_user }}"
     auth_password: "{{ keycloak_admin_password }}"
