@@ -3,7 +3,7 @@
   hosts: foreman
   become: true
   vars_files:
-    - ../host_vars/foreman_vars.yml
+    - host_vars/foreman_vars.yml
   roles:
     - role: keycloak_setup
   post_tasks:
