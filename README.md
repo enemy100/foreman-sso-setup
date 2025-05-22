@@ -19,6 +19,16 @@ The project uses Ansible to automate the installation and configuration of Keycl
 - Root/sudo access to the server
 - Valid SSL certificates (or self-signed for development)
 
+### Installing Required Collections
+
+Before running the playbook, install the required Ansible collections:
+
+```bash
+ansible-galaxy collection install -r requirements.yml
+```
+
+This will install all necessary collections with versions compatible with your Ansible installation.
+
 ## Project Structure
 
 ```

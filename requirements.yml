@@ -1,0 +1,8 @@
+---
+collections:
+  - name: community.general
+    version: ">=7.0.0,<8.0.0"  # Versão compatível com Ansible 2.14
+  - name: ansible.posix
+    version: ">=1.4.0,<2.0.0"
+  - name: community.crypto
+    version: ">=2.0.0,<3.0.0" 
