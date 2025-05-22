@@ -1,0 +1,100 @@
+---
+# Keycloak Configuration
+keycloak_version: "21.1.1"
+keycloak_admin_user: "admin"
+keycloak_admin_password: "{{ lookup('password', '/dev/null length=32 chars=ascii_letters,digits') }}"
+keycloak_port: 8080
+keycloak_https_port: 8443
+keycloak_management_port: 9990
+
+# Foreman Integration
+foreman_realm_name: "foreman"
+foreman_client_id: "foreman"
+foreman_client_secret: "{{ lookup('password', '/dev/null length=32 chars=ascii_letters,digits') }}"
+
+# System Configuration
+keycloak_user: "keycloak"
+keycloak_group: "keycloak"
+keycloak_home: "/opt/keycloak"
+keycloak_data_dir: "/var/lib/keycloak"
+keycloak_log_dir: "/var/log/keycloak"
+
+# Java Configuration
+java_version: "17"
+java_home: "/usr/lib/jvm/java-{{ java_version }}-openjdk"
+
+# User Management
+keycloak_users:
+  - username: admin
+    email: admin@example.com
+    firstname: Admin
+    lastname: User
+    password: "{{ lookup('password', '/dev/null length=32 chars=ascii_letters,digits') }}"
+  - username: foreman_admin
+    email: foreman_admin@example.com
+    firstname: Foreman
+    lastname: Admin
+    password: "{{ lookup('password', '/dev/null length=32 chars=ascii_letters,digits') }}"
+  - username: foreman_user
+    email: foreman_user@example.com
+    firstname: Foreman
+    lastname: User
+    password: "{{ lookup('password', '/dev/null length=32 chars=ascii_letters,digits') }}"
+
+# Group Management
+keycloak_groups:
+  - name: Foreman Administrators
+    description: "Foreman administrators group"
+  - name: Foreman Users
+    description: "Regular Foreman users group"
+
+keycloak_group_memberships:
+  - group: Foreman Administrators
+    user: foreman_admin
+  - group: Foreman Users
+    user: foreman_user
+
+# Role Management
+keycloak_roles:
+  - name: foreman-admin
+    description: "Foreman administrator role"
+  - name: foreman-user
+    description: "Regular Foreman user role"
+  - name: foreman-viewer
+    description: "Foreman viewer role"
+
+keycloak_client_roles:
+  - name: admin
+    description: "Full administrative access"
+  - name: user
+    description: "Regular user access"
+  - name: viewer
+    description: "Read-only access"
+
+keycloak_user_roles:
+  - user: foreman_admin
+    roles:
+      - foreman-admin
+  - user: foreman_user
+    roles:
+      - foreman-user
+
+keycloak_client_user_roles:
+  - user: foreman_admin
+    roles:
+      - admin
+  - user: foreman_user
+    roles:
+      - user
+
+# Password Policy
+keycloak_password_policy:
+  - "length(12)"
+  - "digits(1)"
+  - "uppercase(1)"
+  - "lowercase(1)"
+  - "special(1)"
+  - "history(5)"
+
+# Brute Force Protection
+keycloak_brute_force_protection: true 

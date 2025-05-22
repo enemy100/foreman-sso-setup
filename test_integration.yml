@@ -1,0 +1,38 @@
+---
+# Test playbook for Foreman-Keycloak integration
+
+- name: Test Foreman-Keycloak Integration
+  hosts: foreman
+  become: true
+  vars_files:
+    - ../host_vars/foreman_vars.yml
+  tasks:
+    - name: Install test dependencies
+      package:
+        name:
+          - curl
+          - jq
+        state: present
+
+    - name: Run integration tests
+      script: "{{ role_path }}/files/test_integration.sh"
+      environment:
+        KEYCLOAK_URL: "https://{{ ansible_host }}:{{ keycloak_https_port }}"
+        KEYCLOAK_REALM: "{{ foreman_realm_name }}"
+        KEYCLOAK_CLIENT: "{{ foreman_client_id }}"
+        KEYCLOAK_ADMIN_PASSWORD: "{{ keycloak_admin_password }}"
+        FOREMAN_URL: "https://{{ foreman_host }}"
+        TEST_USER: "{{ keycloak_users[1].username }}"
+        TEST_PASSWORD: "{{ keycloak_users[1].password }}"
+      register: test_results
+      changed_when: false
+
+    - name: Display test results
+      debug:
+        var: test_results.stdout_lines
+
+    - name: Generate test report
+      template:
+        src: test_report.j2
+        dest: "/tmp/foreman_keycloak_test_report.html"
+      when: test_results.rc == 0 

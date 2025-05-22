@@ -23,34 +23,24 @@ The project uses Ansible to automate the installation and configuration of Keycl
 
 ```
 foreman-sso-setup/
-├── inventory.yml
-├── site.yml
-├── ansible/
-│   ├── roles/
-│   │   └── keycloak_setup/
-│   │       ├── tasks/
-│   │       │   ├── main.yml
-│   │       │   ├── users.yml
-│   │       │   ├── groups.yml
-│   │       │   ├── roles.yml
-│   │       │   ├── password_policy.yml
-│   │       │   └── verify.yml
-│   │       └── files/
-│   │           └── test_integration.sh
-│   ├── playbooks/
-│   │   └── test_integration.yml
-│   └── host_vars/
-│       └── foreman_vars.yml
+├── .github/
+│   └── workflows/
 ├── docs/
-│   └── foreman-integration.md
-└── .github/
-    └── workflows/
-        └── deploy-sso.yml
+├── host_vars/
+├── roles/
+│   ├── defaults/
+│   ├── files/
+│   ├── tasks/
+│   └── templates/
+├── inventory.yml
+├── README.md
+├── site.yml
+└── test_integration.yml
 ```
 
 ## Configuration
 
-1. Configure variables in `ansible/host_vars/foreman_vars.yml`:
+1. Configure variables in `host_vars/foreman_vars.yml`:
    ```yaml
    keycloak_version: "21.1.1"
    keycloak_admin_user: "admin"
@@ -105,7 +95,7 @@ See the playbook and test script for details on each test.
 ### Running Tests
 
 ```bash
-ansible-playbook -i inventory.yml ansible/playbooks/test_integration.yml
+ansible-playbook -i inventory.yml test_integration.yml
 cat /tmp/foreman_keycloak_test_report.html
 ```
 
