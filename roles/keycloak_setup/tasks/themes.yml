@@ -1,0 +1,15 @@
+---
+# Theme configuration tasks
+
+- name: Create themes directory
+  ansible.builtin.file:
+    path: /opt/keycloak/themes/foreman
+    state: directory
+    owner: keycloak
+    group: keycloak
+    mode: '0755'
+
+- name: Copy default theme as base
+  ansible.builtin.command:
+    cmd: cp -r /opt/keycloak/themes/base/* /opt/keycloak/themes/foreman/
+  changed_when: true 

@@ -1,0 +1,84 @@
+---
+# Default variables for Keycloak setup
+
+# Keycloak version and configuration
+keycloak_version: "21.1.1"
+keycloak_admin_user: "admin"
+keycloak_admin_password: "password"
+keycloak_https_port: 8443
+
+# Foreman realm and client
+foreman_realm_name: "foreman"
+foreman_client_id: "foreman"
+
+# Admin user password
+admin_password: "password"
+
+# Default users
+keycloak_users:
+  - username: "user1"
+    email: "user1@example.com"
+    firstname: "User"
+    lastname: "One"
+    password: "password1"
+  - username: "user2"
+    email: "user2@example.com"
+    firstname: "User"
+    lastname: "Two"
+    password: "password2"
+
+# Default groups
+keycloak_groups:
+  - name: "Administrators"
+    description: "Foreman administrators group"
+  - name: "Users"
+    description: "Foreman regular users group"
+
+# Group memberships
+keycloak_group_memberships:
+  - user: "admin"
+    group: "Administrators"
+  - user: "user1"
+    group: "Users"
+  - user: "user2"
+    group: "Users"
+
+# Roles
+keycloak_roles:
+  - name: "foreman-admin"
+    description: "Foreman administrator role"
+  - name: "foreman-user"
+    description: "Foreman regular user role"
+
+# Client roles
+keycloak_client_roles:
+  - name: "viewer"
+    description: "Read-only access"
+  - name: "editor"
+    description: "Edit access"
+  - name: "admin"
+    description: "Administrative access"
+
+# User roles
+keycloak_user_roles:
+  - user: "admin"
+    roles:
+      - "foreman-admin"
+  - user: "user1"
+    roles:
+      - "foreman-user"
+  - user: "user2"
+    roles:
+      - "foreman-user"
+
+# Client user roles
+keycloak_client_user_roles:
+  - user: "admin"
+    roles:
+      - "admin"
+  - user: "user1"
+    roles:
+      - "viewer"
+  - user: "user2"
+    roles:
+      - "editor" 

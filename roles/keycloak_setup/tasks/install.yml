@@ -1,9 +1,9 @@
 ---
 # Keycloak installation tasks
 
-- name: Create Keycloak directory
+- name: Create temporary Keycloak directory
   ansible.builtin.file:
-    path: /opt/keycloak
+    path: /opt/keycloak_temp
     state: directory
     mode: '0755'
 
@@ -18,6 +18,11 @@
     src: "/tmp/keycloak-{{ keycloak_version }}.tar.gz"
     dest: /opt
     remote_src: yes
+
+- name: Remove existing Keycloak directory if it exists
+  ansible.builtin.file:
+    path: /opt/keycloak
+    state: absent
 
 - name: Create Keycloak symlink
   ansible.builtin.file:
