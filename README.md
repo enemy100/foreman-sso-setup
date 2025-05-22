@@ -83,10 +83,11 @@ For didactic/lab use, it is recommended to run Ansible as root for simplicity. Y
 
 ```ini
 [foreman]
-foreman.example.com ansible_host=192.168.56.10
+foremanserver.mydomain.com ansible_host=192.168.2.1
+
 ```
 
-- `foreman.example.com` is the FQDN used for SSO/certificates.
+- `foremanserver.mydomain.com` is the FQDN used for SSO/certificates.
 - `ansible_host` is the IP or DNS of the target server.
 - By default, Ansible will connect as root (if you run `ansible-playbook` as root or specify `-u root`).
 
