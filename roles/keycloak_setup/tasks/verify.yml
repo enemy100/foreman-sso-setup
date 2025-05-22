@@ -54,10 +54,4 @@
   register: admin_console
   ignore_errors: yes
 
-- name: Verify Foreman client configuration
-  ansible.builtin.uri:
-    url: "http://localhost:8080/realms/foreman/.well-known/openid-configuration"
-    method: GET
-    status_code: 200, 404
-  register: foreman_client
-  ignore_errors: yes 
+# Foreman realm verification removed - to be done manually after manual creation 
