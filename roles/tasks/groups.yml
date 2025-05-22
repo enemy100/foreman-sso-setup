@@ -1,0 +1,29 @@
+---
+# Group management tasks
+
+- name: Create Foreman groups
+  community.general.keycloak_group:
+    auth_keycloak_url: "https://{{ ansible_host }}:{{ keycloak_https_port }}"
+    auth_realm: master
+    auth_username: "{{ keycloak_admin_user }}"
+    auth_password: "{{ keycloak_admin_password }}"
+    realm: "{{ foreman_realm_name }}"
+    name: "{{ item.name }}"
+    attributes:
+      description: "{{ item.description }}"
+    state: present
+  loop: "{{ keycloak_groups }}"
+  when: keycloak_groups is defined
+
+- name: Add users to groups
+  community.general.keycloak_group_membership:
+    auth_keycloak_url: "https://{{ ansible_host }}:{{ keycloak_https_port }}"
+    auth_realm: master
+    auth_username: "{{ keycloak_admin_user }}"
+    auth_password: "{{ keycloak_admin_password }}"
+    realm: "{{ foreman_realm_name }}"
+    groupname: "{{ item.group }}"
+    username: "{{ item.user }}"
+    state: present
+  loop: "{{ keycloak_group_memberships }}"
+  when: keycloak_group_memberships is defined 

@@ -1,0 +1,53 @@
+---
+# Verification tasks
+
+- name: Wait for Keycloak to be ready
+  uri:
+    url: "https://{{ ansible_host }}:{{ keycloak_https_port }}/health/ready"
+    method: GET
+    validate_certs: false
+    status_code: 200
+  register: result
+  until: result.status == 200
+  retries: 30
+  delay: 10
+
+- name: Verify Keycloak admin console access
+  uri:
+    url: "https://{{ ansible_host }}:{{ keycloak_https_port }}/admin"
+    method: GET
+    validate_certs: false
+    status_code: 200
+  register: admin_console
+
+- name: Verify Foreman client configuration
+  uri:
+    url: "https://{{ ansible_host }}:{{ keycloak_https_port }}/realms/{{ foreman_realm_name }}/.well-known/openid-configuration"
+    method: GET
+    validate_certs: false
+    status_code: 200
+  register: openid_config
+
+- name: Verify Foreman SSO endpoint
+  uri:
+    url: "https://{{ foreman_host }}/users/auth/keycloak"
+    method: GET
+    validate_certs: false
+    status_code: 302
+  register: sso_endpoint
+
+- name: Run integration tests
+  script: "{{ role_path }}/files/test_integration.sh"
+  environment:
+    KEYCLOAK_URL: "https://{{ ansible_host }}:{{ keycloak_https_port }}"
+    KEYCLOAK_REALM: "{{ foreman_realm_name }}"
+    KEYCLOAK_CLIENT: "{{ foreman_client_id }}"
+    FOREMAN_URL: "https://{{ foreman_host }}"
+    TEST_USER: "{{ keycloak_users[1].username }}"
+    TEST_PASSWORD: "{{ keycloak_users[1].password }}"
+  register: test_results
+  changed_when: false
+
+- name: Display test results
+  debug:
+    var: test_results.stdout_lines 

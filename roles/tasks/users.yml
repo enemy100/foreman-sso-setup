@@ -1,0 +1,67 @@
+---
+# User management tasks
+
+- name: Create admin user
+  community.general.keycloak_user:
+    auth_keycloak_url: "https://{{ ansible_host }}:{{ keycloak_https_port }}"
+    auth_realm: master
+    auth_username: "{{ keycloak_admin_user }}"
+    auth_password: "{{ keycloak_admin_password }}"
+    realm: "{{ foreman_realm_name }}"
+    username: admin
+    email: admin@example.com
+    firstname: Admin
+    lastname: User
+    enabled: true
+    attributes:
+      locale: ["en"]
+    state: present
+  register: admin_user
+
+- name: Set admin user password
+  community.general.keycloak_user:
+    auth_keycloak_url: "https://{{ ansible_host }}:{{ keycloak_https_port }}"
+    auth_realm: master
+    auth_username: "{{ keycloak_admin_user }}"
+    auth_password: "{{ keycloak_admin_password }}"
+    realm: "{{ foreman_realm_name }}"
+    username: admin
+    credentials:
+      - type: password
+        value: "{{ admin_password }}"
+        temporary: false
+    state: present
+
+- name: Create regular users
+  community.general.keycloak_user:
+    auth_keycloak_url: "https://{{ ansible_host }}:{{ keycloak_https_port }}"
+    auth_realm: master
+    auth_username: "{{ keycloak_admin_user }}"
+    auth_password: "{{ keycloak_admin_password }}"
+    realm: "{{ foreman_realm_name }}"
+    username: "{{ item.username }}"
+    email: "{{ item.email }}"
+    firstname: "{{ item.firstname }}"
+    lastname: "{{ item.lastname }}"
+    enabled: true
+    attributes:
+      locale: ["en"]
+    state: present
+  loop: "{{ keycloak_users }}"
+  when: keycloak_users is defined
+
+- name: Set user passwords
+  community.general.keycloak_user:
+    auth_keycloak_url: "https://{{ ansible_host }}:{{ keycloak_https_port }}"
+    auth_realm: master
+    auth_username: "{{ keycloak_admin_user }}"
+    auth_password: "{{ keycloak_admin_password }}"
+    realm: "{{ foreman_realm_name }}"
+    username: "{{ item.username }}"
+    credentials:
+      - type: password
+        value: "{{ item.password }}"
+        temporary: false
+    state: present
+  loop: "{{ keycloak_users }}"
+  when: keycloak_users is defined 
